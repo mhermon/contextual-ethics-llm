@@ -1,0 +1,5 @@
+pandas
+openai
+google-genai
+anthropic
+tqdm
