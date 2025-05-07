@@ -18,7 +18,7 @@ import anthropic                          # Anthropic Claude
 # --------------------------------------------------------------------------- #
 # Constants
 # --------------------------------------------------------------------------- #
-GOOGLE_RPM_MAX: int = 20   # Gemini Flash‑lite requests per minute
+GOOGLE_RPM_MAX: int = 10   # Gemini Flash‑lite requests per minute
 
 
 # --------------------------------------------------------------------------- #
@@ -34,7 +34,7 @@ def _init_openai(api_key_env: str, model: str, base_url: str | None = None) -> P
 
 def _init_google() -> ProviderClient:
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-    return client, "gemini-2.0-flash-lite"
+    return client, "gemini-2.0-flash"
 
 
 def _init_anthropic() -> ProviderClient:
@@ -46,7 +46,7 @@ def set_provider(provider: str) -> ProviderClient:
     """Return an SDK client handle and default model string for a provider."""
     match provider.lower():
         case "openai":
-            return _init_openai("OPENAI_API_KEY", "gpt-4.1-nano")
+            return _init_openai("OPENAI_API_KEY", "chatgpt-4o-latest")
         case "deepseek":
             return _init_openai("DEEPSEEK_API_KEY", "deepseek-chat", base_url="https://api.deepseek.com")
         case "google":
@@ -161,7 +161,7 @@ def _generate_response(
         message = client.messages.create(
             model=model, max_tokens=1024, messages=[{"role": "user", "content": prompt}]
         )
-        return message.content, last_request_time
+        return message.content[0].text, last_request_time
 
     if provider == "local":
         assert local_model_path, "`local_model_path` must be provided for local provider"
